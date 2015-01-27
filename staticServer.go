@@ -1,3 +1,37 @@
+// Copyright 2015 Jeff Martinez. All rights reserved.
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE.txt file
+// or at http://opensource.org/licenses/MIT
+
+/*
+A quick and easy to use web server that can be pointed to serve the contents
+of any directory.
+
+The default behavior is to serve the contents of the current directory,
+accessible on port 8000 only accessible from localhost (in other words,
+other machines on the network can't hit your server).
+
+You can allow other machines on your network to access the server by using
+the -a flag. This enables anyone to see the contents of the server on the
+specified port.
+
+You can change the port with -port.
+Example:
+	-port=54321
+
+You can change the directory served with -dir.
+Examples:
+	-dir=my/relative/path       <- relative path
+	-dir=../..                  <- another relative path
+	-dir=/absolute/path         <- absolute path
+
+Exit codes are as follows:
+
+0: success ([ctrl-c] used to terminate server)
+1: failure code, possibly bad directory name or permissions issue
+2: Incorrect usage. Will display usage (equivalent to using -h or --help)
+*/
+
 package main
 
 import (
@@ -12,6 +46,7 @@ import (
 
 const EXIT_SUCCESS = 0
 const EXIT_FAILURE = 1
+const EXIT_USAGE_FAILURE = 2 // Same as golang's flag module uses
 
 func main() {
 	setupExitOnCtrlC()
@@ -98,7 +133,7 @@ func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServ
 	const DEFAULT_PORT = 8000
 	const DEFAULT_DIR = "."
 
-	flag.BoolVar(&allowAnyHostToConnect, "a", false, "Set to allow any ip address (any host) to connect. Default allows ony localhost.")
+	flag.BoolVar(&allowAnyHostToConnect, "a", false, "Use allow any ip address (any host) to connect. Default allows ony localhost.")
 	flag.IntVar(&port, "port", DEFAULT_PORT, "Port on which to listen for connections.")
 	flag.StringVar(&directoryToServe, "dir", DEFAULT_DIR, "Directory to serve. Default is current directory.")
 
@@ -117,7 +152,7 @@ func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServ
 		https://github.com/golang/go/blob/release-branch.go1.4/src/flag/flag.go#L411
 		*/
 		flag.Usage()
-		os.Exit(EXIT_FAILURE)
+		os.Exit(EXIT_USAGE_FAILURE)
 	}
 
 	return
