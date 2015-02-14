@@ -37,24 +37,22 @@ func main() {
 
 	verifyDirectoryOrDie(directoryToServe)
 
+	const DIR_PREFIX = "/dir/"
+	const ECHO_PREFIX = "/echo/"
+
+	http.Handle(DIR_PREFIX, handler.NewFileServer(DIR_PREFIX, directoryToServe))
+	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
+	http.Handle("/random", handler.NewRandom())
+	http.Handle("/increment", handler.NewIncrement())
+
 	listenHost := "localhost"
 	if allowAnyHostToConnect {
 		listenHost = ""
 	}
 
-	listenAddress := fmt.Sprintf("%v:%v", listenHost, listenPort)
-
-	const DIR_PREFIX = "/dir/"
-	fileServer := handler.NewFileServer(DIR_PREFIX, directoryToServe)
-	http.Handle(DIR_PREFIX, fileServer)
-
-	http.Handle("/random", handler.NewRandom())
-
-	const ECHO_PREFIX = "/echo/"
-	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
-
 	displayServerInfo(directoryToServe, listenHost, listenPort)
 
+	listenAddress := fmt.Sprintf("%v:%v", listenHost, listenPort)
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
