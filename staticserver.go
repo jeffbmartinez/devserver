@@ -13,17 +13,24 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"time"
+
+	"github.com/jeffbmartinez/staticserver/handler"
 )
 
 const EXIT_SUCCESS = 0
 const EXIT_FAILURE = 1
-const EXIT_USAGE_FAILURE = 2 // Same as golang's flag module uses
+const EXIT_USAGE_FAILURE = 2 // Same as golang's flag module uses, hardcoded at https://github.com/golang/go/blob/release-branch.go1.4/src/flag/flag.go#L812
 
 func main() {
+	randomSeed := time.Now().UnixNano()
+	rand.Seed(randomSeed)
+
 	setupExitOnCtrlC()
 
 	allowAnyHostToConnect, listenPort, directoryToServe := getCommandLineArgs()
@@ -37,23 +44,15 @@ func main() {
 
 	listenAddress := fmt.Sprintf("%v:%v", listenHost, listenPort)
 
-	httpDirectory := http.Dir(directoryToServe)
-	fileServer := http.FileServer(httpDirectory)
+	const DIR_PREFIX = "/dir/"
+	fileServer := handler.NewFileServer(DIR_PREFIX, directoryToServe)
+	http.Handle(DIR_PREFIX, fileServer)
 
-	canonicalDirName := getCanonicalDirName(directoryToServe)
+	http.Handle("/random", handler.NewRandom())
 
-	visibleTo := listenHost
-	if visibleTo == "" {
-		visibleTo = "All ip addresses"
-	}
+	displayServerInfo(directoryToServe, listenHost, listenPort)
 
-	fmt.Printf("Server is running.\n\n")
-	fmt.Printf("Directory: %v\n", canonicalDirName)
-	fmt.Printf("Visible to: %v\n", visibleTo)
-	fmt.Printf("Port: %v\n\n", listenPort)
-	fmt.Printf("Hit [ctrl-c] to quit\n")
-
-	log.Fatal(http.ListenAndServe(listenAddress, fileServer))
+	log.Fatal(http.ListenAndServe(listenAddress, nil))
 }
 
 func verifyDirectoryOrDie(dir string) {
@@ -131,4 +130,17 @@ func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServ
 	}
 
 	return
+}
+
+func displayServerInfo(directoryToServe string, listenHost string, listenPort int) {
+	visibleTo := listenHost
+	if visibleTo == "" {
+		visibleTo = "All ip addresses"
+	}
+
+	fmt.Printf("Server is running.\n\n")
+	fmt.Printf("Directory: %v\n", getCanonicalDirName(directoryToServe))
+	fmt.Printf("Visible to: %v\n", visibleTo)
+	fmt.Printf("Port: %v\n\n", listenPort)
+	fmt.Printf("Hit [ctrl-c] to quit\n")
 }
