@@ -33,14 +33,16 @@ func main() {
 
 	setupExitOnCtrlC()
 
-	allowAnyHostToConnect, listenPort, directoryToServe := getCommandLineArgs()
+	allowAnyHostToConnect, listenPort, directoryToServe, noDirectory := getCommandLineArgs()
 
 	verifyDirectoryOrDie(directoryToServe)
 
 	const DIR_PREFIX = "/dir/"
 	const ECHO_PREFIX = "/echo/"
 
-	http.Handle(DIR_PREFIX, handler.NewFileServer(DIR_PREFIX, directoryToServe))
+	if !noDirectory {
+		http.Handle(DIR_PREFIX, handler.NewFileServer(DIR_PREFIX, directoryToServe))
+	}
 	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
 	http.Handle("/random", handler.NewRandom())
 	http.Handle("/increment", handler.NewIncrement())
@@ -50,7 +52,7 @@ func main() {
 		listenHost = ""
 	}
 
-	displayServerInfo(directoryToServe, listenHost, listenPort)
+	displayServerInfo(directoryToServe, listenHost, listenPort, noDirectory)
 
 	listenAddress := fmt.Sprintf("%v:%v", listenHost, listenPort)
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
@@ -104,13 +106,14 @@ func cleanExit() {
 	os.Exit(EXIT_SUCCESS)
 }
 
-func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServe string) {
+func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServe string, noDirectory bool) {
 	const DEFAULT_PORT = 8000
 	const DEFAULT_DIR = "."
 
 	flag.BoolVar(&allowAnyHostToConnect, "a", false, "Use allow any ip address (any host) to connect. Default allows ony localhost.")
 	flag.IntVar(&port, "port", DEFAULT_PORT, "Port on which to listen for connections.")
 	flag.StringVar(&directoryToServe, "dir", DEFAULT_DIR, "Directory to serve. Default is current directory.")
+	flag.BoolVar(&noDirectory, "nodir", false, "Disable the file server.")
 
 	flag.Parse()
 
@@ -133,14 +136,19 @@ func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServ
 	return
 }
 
-func displayServerInfo(directoryToServe string, listenHost string, listenPort int) {
+func displayServerInfo(directoryToServe string, listenHost string, listenPort int, disableFileServer bool) {
 	visibleTo := listenHost
 	if visibleTo == "" {
 		visibleTo = "All ip addresses"
 	}
 
+	directoryNameText := "[File Server is disabled]"
+	if !disableFileServer {
+		directoryNameText = getCanonicalDirName(directoryToServe)
+	}
+
 	fmt.Printf("Server is running.\n\n")
-	fmt.Printf("Directory: %v\n", getCanonicalDirName(directoryToServe))
+	fmt.Printf("Directory: %v\n", directoryNameText)
 	fmt.Printf("Visible to: %v\n", visibleTo)
 	fmt.Printf("Port: %v\n\n", listenPort)
 	fmt.Printf("Hit [ctrl-c] to quit\n")

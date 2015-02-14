@@ -1,46 +1,103 @@
-# staticserver
+# devserver
 
-A quick and easy to use web server that can serve the contents of any directory.
+Updated February 14, 2015
 
-The **default behavior** is to serve the contents of the current directory,
-accessible on port 8000 only accessible from localhost (in other words,
-**other machines on the network can't hit your server**).
+devserver is a server designed for use by developers. It contains a number of resources useful during the testing of web related projects, such as a file server and an echo endpoint.
 
-You can allow other machines on your network to access the server by using
-the -a flag. This enables anyone to see the contents of the server on the
-specified port.
+## Usage
 
-You can change the port with -port
+Run devserver via `devserver` on the command line. It will listen for requests to the available endpoints.
 
-	Example:
-	-port=54321
+One of the most useful features of devserver is that it will automatically make available the contents of the directory from which you ran `devserver`. For example, if `devserver` is executed while in */tmp/myfiles/*, the contents of */tmp/myfiles/* will be accessible through devserver at *localhost:8000/dir/*. The file server can be turned off with the `-nodir` flag.
 
-You can change the directory served with -dir
+The default behavior of devserver is to allow connections only from localhost. Since devserver's default behavior includes a fileserver which can serve the contents of a local directory, access from other machines must be explicitly enabled with the `-a` ("allow" or "all") flag. To reiterate, the **default behavior prevents other machines on the network from reaching your server**.
 
-	Examples:
+### Usage Flags
+
+#### Port Number
+
+Change the **default port** of 8000 with `-port`.
+
+	-port=12345
+
+#### File Server Directory
+
+Change the directory served with -dir. Default is the directory where `devserver` is run.
+
 	-dir=my/relative/path       <- relative path  
 	-dir=../..                  <- another relative path  
-	-dir=/absolute/path         <- absolute path  
+	-dir=/absolute/path         <- absolute path
 
-Exit codes are as follows:
+#### Disable File Server
+
+Disable the file server with `-nodir`. If both `-nodir` and `-dir` are used, `-nodir` takes precedence and the file server is still disabled.
+
+	-nodir
+
+#### Allow All IP Address Connections
+
+By default, only access via localhost is allowed. To allow other machines to connect to devserver, use `-a`.
+
+	-a
+
+#### Complete Examples of Flag Usage:
+
+Allow access to my/private/test/files on port 8080, only via localhost (other machines can't access):
+
+	devserver -port=8080 -dir=my/private/test/files
+	
+Allow access to anyone on the network, but disable the file server:
+
+	devserver -a -nodir
+
+Allow access to anyone on the network over port 51515. Expose */sharing/with/coworkers* directory:
+	
+	devserver -a -port=51515 -dir=/sharing/with/coworkers
+
+## Exit Codes
+
+Exit codes for devserver as as follows:
 
 	0: success ([ctrl-c] used to terminate server)  
 	1: failure code, possibly bad directory name or permissions issue  
 	2: Incorrect usage. Will display usage (equivalent to using -h or --help)  
 
-Complete examples:
-
-	staticserver -port=8080 -dir=do/what/I/want
-	staticserver -a -port=51515 -dir=/sharing/with/coworkers
+## Licence
 
 For license info, see LICENSE.txt (Short version: MIT license).
 
-## Endpoints
+## Available Resources
 
-/dir/ - Shows the contents of the current directory
+All the examples assume devserver is running locally on port 8000, as is the default behavior.
 
-/echo/ - The response echos whatever comes after the `/echo/` portion of the url, for example, hitting `/echo/hello` will respond with `hello`
+### File Server
 
-/increment - Responds with ever incrementing numbers, based on the number of times you've hit the endpoint. The first time responds with `1`, then `2`, and so on.
+#### Directory Contents
 
-/random - Responds with a random integer.
+`localhost:8000/dir/[path to directory]`
+
+Will return a simple html page with links to the underlying directories and files of the directory being served. The root directory as far as the file server is concerned is the one specified either by the `-dir` flag or based on the working directory at the time `devserver` was executed.
+
+#### File Contents
+
+`localhost:8000/dir/[path to file]`
+
+Respond with the contents of the file.
+
+### Echo
+
+`localhost:8000/echo/[message]`
+
+Responds with whatever [message] you send.
+
+### Random
+
+`localhost:8000/random`
+
+Responds with a random integer
+
+### Increment
+
+`localhost:8000/increment`
+
+Responds with a number, based on the number of times you've called the endpoint. The first time is 1, the second time is 2, etc.
