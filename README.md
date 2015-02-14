@@ -34,3 +34,13 @@ Complete examples:
 	staticserver -a -port=51515 -dir=/sharing/with/coworkers
 
 For license info, see LICENSE.txt (Short version: MIT license).
+
+## Endpoints
+
+/dir/ - Shows the contents of the current directory
+
+/echo/ - The response echos whatever comes after the `/echo/` portion of the url, for example, hitting `/echo/hello` will respond with `hello`
+
+/increment - Responds with ever incrementing numbers, based on the number of times you've hit the endpoint. The first time responds with `1`, then `2`, and so on.
+
+/random - Responds with a random integer.
