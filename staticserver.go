@@ -50,6 +50,9 @@ func main() {
 
 	http.Handle("/random", handler.NewRandom())
 
+	const ECHO_PREFIX = "/echo/"
+	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
+
 	displayServerInfo(directoryToServe, listenHost, listenPort)
 
 	log.Fatal(http.ListenAndServe(listenAddress, nil))
