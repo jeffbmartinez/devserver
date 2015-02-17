@@ -20,12 +20,14 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/jeffbmartinez/staticserver/handler"
+	"github.com/jeffbmartinez/devserver/handler"
 )
 
 const EXIT_SUCCESS = 0
 const EXIT_FAILURE = 1
 const EXIT_USAGE_FAILURE = 2 // Same as golang's flag module uses, hardcoded at https://github.com/golang/go/blob/release-branch.go1.4/src/flag/flag.go#L812
+
+const PROJECT_NAME = "devserver"
 
 func main() {
 	randomSeed := time.Now().UnixNano()
@@ -102,7 +104,7 @@ func cleanExit() {
 	   space characters they serve to hide the "^C" that is printed when
 	   ctrl-c is typed.
 	*/
-	fmt.Println("\b\b  \n[ctrl-c] Server is shutting down")
+	fmt.Printf("\b\b  \n[ctrl-c] %v is shutting down\n", PROJECT_NAME)
 	os.Exit(EXIT_SUCCESS)
 }
 
@@ -147,7 +149,7 @@ func displayServerInfo(directoryToServe string, listenHost string, listenPort in
 		directoryNameText = getCanonicalDirName(directoryToServe)
 	}
 
-	fmt.Printf("Server is running.\n\n")
+	fmt.Printf("%v is running.\n\n", PROJECT_NAME)
 	fmt.Printf("Directory: %v\n", directoryNameText)
 	fmt.Printf("Visible to: %v\n", visibleTo)
 	fmt.Printf("Port: %v\n\n", listenPort)
