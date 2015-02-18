@@ -96,9 +96,9 @@ Responds with whatever [message] you send.
 
 Responds with a random integer
 
-### Increment
+### Counter
 
-`localhost:8000/increment`
+`localhost:8000/counter`
 
 Responds with a number, based on the number of times you've called the endpoint. The first time is 1, the second time is 2, etc.
 

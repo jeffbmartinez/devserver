@@ -47,7 +47,7 @@ func main() {
 	}
 	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
 	http.Handle("/random", handler.NewRandom())
-	http.Handle("/increment", handler.NewIncrement())
+	http.Handle("/counter", handler.NewCounter())
 
 	listenHost := "localhost"
 	if allowAnyHostToConnect {
