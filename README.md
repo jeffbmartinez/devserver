@@ -101,3 +101,15 @@ Responds with a random integer
 `localhost:8000/increment`
 
 Responds with a number, based on the number of times you've called the endpoint. The first time is 1, the second time is 2, etc.
+
+## Available Header Options
+
+Unless otherwise specified, any of the resources in devserver will accept http request headers to modify the behavior of the call. The following are accepted headers:
+
+### delay-millisesconds
+
+Adds a minimum delay to sending the response after receiving the request. This is useful for simulating higher latencies across real networks.
+
+Example to wait one second before sending the response:
+
+    $ curl -H 'delay-milliseconds: 1000' localhost:8000/echo/hello

@@ -8,6 +8,8 @@ import (
 type Echo struct{}
 
 func (r Echo) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	HandleDelay(request)
+
 	fmt.Fprint(response, request.URL.RequestURI())
 }
 

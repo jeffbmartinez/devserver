@@ -43,7 +43,7 @@ func main() {
 	const ECHO_PREFIX = "/echo/"
 
 	if !noDirectory {
-		http.Handle(DIR_PREFIX, handler.NewFileServer(DIR_PREFIX, directoryToServe))
+		http.Handle(DIR_PREFIX, handler.NewDelayableFileServer(DIR_PREFIX, directoryToServe))
 	}
 	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
 	http.Handle("/random", handler.NewRandom())

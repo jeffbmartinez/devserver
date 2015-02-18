@@ -10,6 +10,8 @@ type Increment struct {
 }
 
 func (r *Increment) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	HandleDelay(request)
+
 	r.number++
 	fmt.Fprint(response, r.number)
 }
