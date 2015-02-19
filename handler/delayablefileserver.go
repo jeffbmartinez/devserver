@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type DelayableFileServer struct {
@@ -11,14 +14,21 @@ type DelayableFileServer struct {
 func (f DelayableFileServer) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	HandleDelay(request)
 
+	vars := mux.Vars(request)
+
+	pathname := fmt.Sprintf("/%v", vars["pathname"])
+
+	// Forward a modified version of the request to http.FileServer.
+	// It already knows how to retrieve a file.
+	request.URL.Path = pathname
+
 	f.fileServer.ServeHTTP(response, request)
 }
 
-func NewDelayableFileServer(urlPrefix string, directoryToServe string) http.Handler {
+func NewDelayableFileServer(directoryToServe string) http.Handler {
 	httpDirectory := http.Dir(directoryToServe)
 	fileServer := http.FileServer(httpDirectory)
-	prefixStrippedFileServer := http.StripPrefix(urlPrefix, fileServer)
-	delayableFileServer := &DelayableFileServer{fileServer: prefixStrippedFileServer}
+	delayableFileServer := &DelayableFileServer{fileServer: fileServer}
 
 	return delayableFileServer
 }

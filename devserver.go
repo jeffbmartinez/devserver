@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	"github.com/jeffbmartinez/devserver/handler"
 )
 
@@ -39,15 +41,16 @@ func main() {
 
 	verifyDirectoryOrDie(directoryToServe)
 
-	const DIR_PREFIX = "/dir/"
-	const ECHO_PREFIX = "/echo/"
+	router := mux.NewRouter()
 
 	if !noDirectory {
-		http.Handle(DIR_PREFIX, handler.NewDelayableFileServer(DIR_PREFIX, directoryToServe))
+		router.Handle("/dir/{pathname:.*}", handler.NewDelayableFileServer(directoryToServe))
 	}
-	http.Handle(ECHO_PREFIX, handler.NewEcho(ECHO_PREFIX))
-	http.Handle("/random", handler.NewRandom())
-	http.Handle("/counter", handler.NewCounter())
+	router.HandleFunc("/echo/{echoString:.*}", handler.Echo)
+	router.HandleFunc("/random", handler.Random)
+	router.Handle("/counter", handler.NewCounter())
+
+	http.Handle("/", router)
 
 	listenHost := "localhost"
 	if allowAnyHostToConnect {

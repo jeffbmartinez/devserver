@@ -3,16 +3,14 @@ package handler
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-type Echo struct{}
-
-func (r Echo) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+func Echo(response http.ResponseWriter, request *http.Request) {
 	HandleDelay(request)
 
-	fmt.Fprint(response, request.URL.RequestURI())
-}
+	vars := mux.Vars(request)
 
-func NewEcho(prefix string) http.Handler {
-	return http.StripPrefix(prefix, &Echo{})
+	fmt.Fprint(response, vars["echoString"])
 }
