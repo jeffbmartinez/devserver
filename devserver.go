@@ -115,7 +115,7 @@ func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServ
 	const DEFAULT_PORT = 8000
 	const DEFAULT_DIR = "."
 
-	flag.BoolVar(&allowAnyHostToConnect, "a", false, "Use allow any ip address (any host) to connect. Default allows ony localhost.")
+	flag.BoolVar(&allowAnyHostToConnect, "a", false, "Use to allow any ip address (any host) to connect. Default allows ony localhost.")
 	flag.IntVar(&port, "port", DEFAULT_PORT, "Port on which to listen for connections.")
 	flag.StringVar(&directoryToServe, "dir", DEFAULT_DIR, "Directory to serve. Default is current directory.")
 	flag.BoolVar(&noDirectory, "nodir", false, "Disable the file server.")
