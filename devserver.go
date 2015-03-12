@@ -16,12 +16,12 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"time"
 
 	"github.com/gorilla/mux"
 
+	"github.com/jeffbmartinez/cleanexit"
 	"github.com/jeffbmartinez/devserver/handler"
 )
 
@@ -32,10 +32,10 @@ const EXIT_USAGE_FAILURE = 2 // Same as golang's flag module uses, hardcoded at 
 const PROJECT_NAME = "devserver"
 
 func main() {
+	cleanexit.SetUpExitOnCtrlC(showNiceExitMessage)
+
 	randomSeed := time.Now().UnixNano()
 	rand.Seed(randomSeed)
-
-	setupExitOnCtrlC()
 
 	allowAnyHostToConnect, listenPort, directoryToServe, noDirectory := getCommandLineArgs()
 
@@ -90,25 +90,12 @@ func getCanonicalDirName(dir string) string {
 	return canonicalDirName
 }
 
-func setupExitOnCtrlC() {
-	const NUM_PARALLEL_SIGNALS_TO_PROCESS = 1
-
-	killChannel := make(chan os.Signal, NUM_PARALLEL_SIGNALS_TO_PROCESS)
-	signal.Notify(killChannel, os.Interrupt, os.Kill)
-
-	go func() {
-		<-killChannel
-		cleanExit()
-	}()
-}
-
-func cleanExit() {
+func showNiceExitMessage() {
 	/* \b is the equivalent of hitting the back arrow. With the two following
 	   space characters they serve to hide the "^C" that is printed when
 	   ctrl-c is typed.
 	*/
 	fmt.Printf("\b\b  \n[ctrl-c] %v is shutting down\n", PROJECT_NAME)
-	os.Exit(EXIT_SUCCESS)
 }
 
 func getCommandLineArgs() (allowAnyHostToConnect bool, port int, directoryToServe string, noDirectory bool) {
