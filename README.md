@@ -106,7 +106,7 @@ Responds with a number, based on the number of times you've called the endpoint.
 
 Unless otherwise specified, any of the resources in devserver will accept http request headers to modify the behavior of the call. The following are accepted headers:
 
-### delay-millisesconds
+### delay-milliseconds
 
 Adds a minimum delay to sending the response after receiving the request. This is useful for simulating higher latencies across real networks.
 
