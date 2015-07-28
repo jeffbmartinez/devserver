@@ -14,14 +14,15 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 
 	"github.com/jeffbmartinez/cleanexit"
+	"github.com/jeffbmartinez/delay"
 	"github.com/jeffbmartinez/devserver/handler"
 )
 
@@ -44,13 +45,15 @@ func main() {
 	router := mux.NewRouter()
 
 	if !noDirectory {
-		router.Handle("/dir/{pathname:.*}", handler.NewDelayableFileServer(directoryToServe))
+		router.Handle("/dir/{pathname:.*}", handler.NewFileServer("/dir/", directoryToServe))
 	}
 	router.HandleFunc("/echo/{echoString:.*}", handler.Echo)
 	router.HandleFunc("/random", handler.Random)
 	router.Handle("/counter", handler.NewCounter())
 
-	http.Handle("/", router)
+	n := negroni.New()
+	n.Use(delay.Middleware{})
+	n.UseHandler(router)
 
 	listenHost := "localhost"
 	if allowAnyHostToConnect {
@@ -60,7 +63,7 @@ func main() {
 	displayServerInfo(directoryToServe, listenHost, listenPort, noDirectory)
 
 	listenAddress := fmt.Sprintf("%v:%v", listenHost, listenPort)
-	log.Fatal(http.ListenAndServe(listenAddress, nil))
+	n.Run(listenAddress)
 }
 
 func verifyDirectoryOrDie(dir string) {
