@@ -143,7 +143,7 @@ func displayServerInfo(directoryToServe string, listenHost string, listenPort in
 	}
 
 	fmt.Printf("%v is running.\n\n", PROJECT_NAME)
-	fmt.Printf("Directory: %v\n", directoryNameText)
+	fmt.Printf("Directory: '%v'\n           ^---> Available at http://[domain]:%v/dir/*\n", directoryNameText, listenPort)
 	fmt.Printf("Visible to: %v\n", visibleTo)
 	fmt.Printf("Port: %v\n\n", listenPort)
 	fmt.Printf("Hit [ctrl-c] to quit\n")
