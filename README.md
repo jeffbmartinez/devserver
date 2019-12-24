@@ -1,6 +1,6 @@
 # devserver
 
-Updated February 14, 2015
+Updated February 21, 2018
 
 devserver is a server designed for use by developers. It contains a number of resources useful during the testing of web related projects, such as a file server and an echo endpoint.
 
@@ -106,10 +106,12 @@ Responds with a number, based on the number of times you've called the endpoint.
 
 Unless otherwise specified, any of the resources in devserver will accept http request headers to modify the behavior of the call. The following are accepted headers:
 
-### delay-milliseconds
+### X-Add-Delay
 
 Adds a minimum delay to sending the response after receiving the request. This is useful for simulating higher latencies across real networks.
 
+The value can be any value parsable by golang's time.ParseDuration. For example, `300ms`, `2.5s`, and `0.5m` are all valid values. Technically `-1.5s` is a valid value, but it won't actually speed up your end point :p
+
 Example to wait one second before sending the response:
 
-    $ curl -H 'delay-milliseconds: 1000' localhost:8000/echo/hello
+    $ curl -H 'X-Add-Delay: 1000ms' localhost:8000/echo/hello
